@@ -24,6 +24,9 @@ A powerful and feature-rich reverse shell script for remote command execution an
 ```bash
 git clone https://github.com/Adameladeb/Reverse-shell.git
 ```
+```bash
+cd Reverse-shell
+```
 Start the listener on your local machine:
 
 ```bash
