@@ -37,7 +37,7 @@ Connect to the remote machine using the client script:
 ```bash
 python client.py
 ```
-
+```
 Use the following commands in the listener shell:
 
 exit - Terminate the connection
@@ -49,7 +49,7 @@ upload - Upload files to the remote machine 💾
 download - Download files from the remote machine 📥
 
 cd <directory> - Change directory on the remote machine
- 
+```
 
 Examples
  
