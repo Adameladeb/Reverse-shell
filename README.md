@@ -57,5 +57,4 @@ Examples
  ```bash
   Shell> ls
 ```
-
-  
+Thanks for Gs Deluxe for fixing some bugs in this  shitty code.
