@@ -10,8 +10,8 @@ A powerful and feature-rich reverse shell script for remote command execution an
 - Download files from the remote machine 📥
 - Change directory on the remote machine
 - Works with Ngrok for remote access outside the network
-- added camera streaming
-- added microfone streaming
+- Webcam Streaming: Remotely access the webcam of the controlled machine and view the live video feed.
+- aAudio Streaming: Listen to the audio captured from the remote machine’s microphone in real-time.
 ```
 ## Requirements
 
