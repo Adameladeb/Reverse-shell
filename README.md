@@ -10,6 +10,8 @@ A powerful and feature-rich reverse shell script for remote command execution an
 - Download files from the remote machine 📥
 - Change directory on the remote machine
 - Works with Ngrok for remote access outside the network
+- added camera streaming
+- added microfone streaming
 ```
 ## Requirements
 
